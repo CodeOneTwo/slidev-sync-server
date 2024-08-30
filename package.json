@@ -1,0 +1,45 @@
+{
+  "name": "slidev-sync-server",
+  "version": "0.0.0",
+  "description": "WebSocket server for slidev-component-poll",
+  "homepage": "https://github.com/Smile-SA/slidev-sync-server",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Smile-SA/slidev-sync-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Smile-SA/slidev-sync-server/issues"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node --experimental-specifier-resolution=node .",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "vuejs",
+    "slidev",
+    "server",
+    "WebSocket",
+    "SSE"
+  ],
+  "author": {
+    "name": "Tony Cabaye",
+    "email": "tonai59+github@gmail.com",
+    "url": "https://github.com/tonai"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {
+    "fastify": "^4.28.1",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.1",
+    "@types/ws": "^8.5.12",
+    "typescript": "^5.5.4"
+  }
+}
