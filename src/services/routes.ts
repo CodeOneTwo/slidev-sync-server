@@ -18,30 +18,26 @@ export function getRoutes<
   return {
     connect(data: ConnectData, connection: T, uid?: string) {
       if (data.id) {
-        log(`Client connected to group "${data.id}"`, LogLevel.WARN);
+        log(`Client "${uid}" connected to group "${data.id}"`, LogLevel.WARN);
         addConnection(connection, data.id);
         removeOldGroups(groups);
         if (!groups.has(data.id)) {
-          initGroup(groups, data.id, data.state);
-        } else {
+          initGroup(groups, data.id, data.states);
+        } /*else {
           const group = groups.get(data.id) as Group;
-          send(connection, group.state, uid);
-        }
+          send(connection, group.states, uid);
+        }*/
       }
     },
     replace(data: ReplaceData, uid?: string) {
       if (data.id && groups.has(data.id)) {
-        const group = groups.get(data.id) as Group;
-        group.state = data.state;
-        updateGroup(groups, data.id, group);
-        broadcast(data.id, data.state, uid);
+        updateGroup(groups, data.id, data.states);
+        broadcast(data.id, data.states, uid);
       }
     },
     reset(data: ResetData, uid?: string) {
       if (data.id && groups.has(data.id)) {
-        const group = groups.get(data.id) as Group;
-        group.state = {};
-        updateGroup(groups, data.id, group);
+        updateGroup(groups, data.id, {});
         broadcast(data.id, {}, uid);
       }
     },

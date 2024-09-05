@@ -1,4 +1,4 @@
-import type { State } from "../types/data";
+import type { States } from "../types/data";
 import type { SseConnections, Groups } from "../types/groups";
 
 import { createServer, IncomingMessage, ServerResponse } from "http";
@@ -120,29 +120,29 @@ export function removeConnection(connection: ServerResponse<IncomingMessage>) {
 
 export function send(
   res: ServerResponse<IncomingMessage>,
-  state: State,
+  states: States,
   uid?: string,
   type: EventType = EventType.REPLACE,
 ) {
   if (process.env.DEBUG === "info") {
     log("--- SEND ---");
     log(type);
-    log(state);
+    log(states);
   }
   res.write("event: " + type + "\n");
-  res.write("data: " + JSON.stringify({ state, uid }) + "\n\n");
+  res.write("data: " + JSON.stringify({ states, uid }) + "\n\n");
 }
 
 export function broadcast(
   groupId: string,
-  state: State,
+  states: States,
   uid?: string,
   type: EventType = EventType.REPLACE,
   connection?: ServerResponse<IncomingMessage>,
 ) {
   for (const [conn, id] of connections.entries()) {
     if (groupId === id && conn !== connection) {
-      send(conn, state, uid, type);
+      send(conn, states, uid, type);
     }
   }
 }

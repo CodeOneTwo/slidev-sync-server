@@ -1,5 +1,7 @@
 export type State = Record<string, unknown>;
 
+export type States = Record<string, State>
+
 export enum DataType {
   CONNECT = "connect",
   REPLACE = "replace",
@@ -20,7 +22,7 @@ export interface WsData extends Data {
 }
 
 export interface ConnectData extends Data {
-  state?: State;
+  states?: States;
 }
 
 export interface WsConnectData extends ConnectData {
@@ -28,7 +30,7 @@ export interface WsConnectData extends ConnectData {
 }
 
 export interface ReplaceData extends Data {
-  state: State
+  states: States
 }
 
 export interface WsReplaceData extends ReplaceData {

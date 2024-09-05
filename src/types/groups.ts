@@ -1,12 +1,12 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { WebSocket } from "ws";
 
-import { EventType, State } from "./data";
+import { EventType, State, States } from "./data";
 
 export interface Group {
   created: Date;
-  state: State;
   updated: Date;
+  states: States;
 }
 
 export type Groups = Map<string, Group>;
@@ -18,13 +18,13 @@ export type Connections<T extends WebSocket | ServerResponse<IncomingMessage>> =
 
 export type Send<T extends WebSocket | ServerResponse<IncomingMessage>> = (
   connection: T,
-  state: State,
+  states: States,
   uid?: string,
   type?: EventType,
 ) => void;
 export type Broadcast<T extends WebSocket | ServerResponse<IncomingMessage>> = (
   groupId: string,
-  state: State,
+  states: States,
   uid?: string,
   type?: EventType,
   connection?: T,

@@ -1,4 +1,4 @@
-import type { State } from "../types/data";
+import type { States } from "../types/data";
 import type { Groups, WsConnections } from "../types/groups";
 
 import { WebSocket, WebSocketServer } from "ws";
@@ -55,27 +55,27 @@ export function removeConnection(connection: WebSocket) {
 
 export function send(
   ws: WebSocket,
-  state: State,
+  states: States,
   uid?: string,
   type: EventType = EventType.REPLACE,
 ) {
   if (process.env.DEBUG === "info") {
     log("--- SEND ---");
-    log(state);
+    log(states);
   }
-  ws.send(JSON.stringify({ type, state, uid }));
+  ws.send(JSON.stringify({ type, states, uid }));
 }
 
 export function broadcast(
   groupId: string,
-  state: State,
+  states: States,
   uid?: string,
   type: EventType = EventType.REPLACE,
   connection?: WebSocket
 ) {
   for (const [conn, id] of connections.entries()) {
     if (groupId === id && conn !== connection) {
-      send(conn, state, uid, type);
+      send(conn, states, uid, type);
     }
   }
 }

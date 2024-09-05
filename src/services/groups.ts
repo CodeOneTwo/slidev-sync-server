@@ -1,4 +1,4 @@
-import type { State } from "../types/data";
+import type { States } from "../types/data";
 import type { Group, Groups } from "../types/groups";
 
 import { log } from "./log.js";
@@ -20,11 +20,11 @@ export function removeOldGroups(groups: Groups) {
   }
 }
 
-export function initGroup(groups: Groups, id: string, state?: State) {
+export function initGroup(groups: Groups, id: string, states: States = {}) {
   const date = new Date();
   const group = {
     created: date,
-    state: state ?? {},
+    states,
     updated: date,
   };
   log(`--- INIT GROUP "${id}" ---`);
@@ -32,7 +32,12 @@ export function initGroup(groups: Groups, id: string, state?: State) {
   groups.set(id, group);
 }
 
-export function updateGroup(groups: Groups, id: string, group: Group) {
+export function updateGroup(groups: Groups, id: string, states: States) {
+  const group = groups.get(id) as Group;
+  const keys = Object.keys(states);
+  for (const key in keys) {
+    group.states[key] = states[key];
+  }
   group.updated = new Date();
   groups.set(id, group);
   log(`--- GROUP "${id}" DATA ---`);
