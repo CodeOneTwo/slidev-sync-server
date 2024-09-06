@@ -33,6 +33,7 @@
       <div>Blue: <span id="blue">0</span>%</div>
     </form>
     <script>
+      const ws = new WebSocket("ws://localhost:8080");
       const connectForm = document.getElementById("connect");
       const questionForm = document.getElementById("question");
       const redEl = document.getElementById("red");
@@ -49,66 +50,49 @@
         localStorage.setItem("userId", userId);
       }
 
-      const es = new EventSource(`http://localhost:8080/event?uid=${userId}`);
-
       connectForm.addEventListener("submit", (event) => {
         event.preventDefault();
         id = event.target.elements.id.value;
-        fetch(`http://localhost:8080/connect?uid=${userId}`, {
-          body: JSON.stringify({
+        ws.send(
+          JSON.stringify({
             type: "connect",
             id,
-          }),
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-          },
-        });
+          })
+        );
         questionForm.style.display = "block";
       });
 
       questionForm.addEventListener("submit", (event) => {
         event.preventDefault();
-        fetch(`http://localhost:8080/answer?uid=${userId}`, {
-          body: JSON.stringify({
+        ws.send(
+          JSON.stringify({
             id,
-            pollId: "color",
-            userId,
-            result: event.target.elements.color.value,
-          }),
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-          },
-        });
+            full: true,
+            states: { "color": { [userId]: event.target.elements.color.value } },
+            type: "patch",
+            uid: userId,
+          })
+        );
       });
 
-      es.addEventListener("message", (event) => {
+      function onMessage(event) {
         const data = JSON.parse(event.data);
-        console.log("data", data);
-        if (data.color) {
-          const state = data.color;
+        if (data?.states?.color) {
+          const votes = Object.values(data?.states?.color);
+          const total = votes.length;
           const counts = answers.map((color) =>
-            Object.values(state.results).reduce(
-              (acc, result) =>
-                acc +
-                Number(
-                  result instanceof Array
-                    ? result.indexOf(color) > -1
-                    : result === color
-                ),
-              0
-            )
+            votes.filter(value => value === color).length
           );
-          const total = counts.reduce((a, b) => a + b, 0);
           const percentages = counts.map((count) =>
             total === 0 ? 0 : (count / total) * 100
           );
-          redEl.innerText = percentages[0];
-          greenEl.innerText = percentages[1];
-          blueEl.innerText = percentages[2];
+          redEl.innerText = percentages[0]
+          greenEl.innerText = percentages[1]
+          blueEl.innerText = percentages[2]
         }
-      });
+      }
+
+      ws.addEventListener("message", onMessage);
     </script>
   </body>
 </html>

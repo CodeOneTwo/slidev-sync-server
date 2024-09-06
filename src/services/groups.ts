@@ -47,7 +47,7 @@ export function replaceGroup(groups: Groups, id: string, states: States) {
 export function patchGroup(groups: Groups, id: string, states: States) {
   const group = groups.get(id) as Group;
   const keys = Object.keys(states);
-  for (const key in keys) {
+  for (const key of keys) {
     group.states[key] = { ...group.states[key], ...states[key] };
   }
   group.updated = new Date();

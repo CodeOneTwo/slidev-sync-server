@@ -42,6 +42,7 @@ export interface WsReplaceData extends ReplaceData {
 }
 
 export interface PatchData extends Data {
+  full?: boolean
   states: States
 }
 

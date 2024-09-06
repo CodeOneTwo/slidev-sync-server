@@ -9,7 +9,7 @@ import type { AddConnection, Broadcast, Groups, Send } from "../types/groups";
 import { IncomingMessage, ServerResponse } from "http";
 import { WebSocket } from "ws";
 
-import { EventType } from '../types/data.js';
+import { EventType } from "../types/data.js";
 import {
   initGroup,
   patchGroup,
@@ -18,17 +18,19 @@ import {
 } from "./groups.js";
 import { log, LogLevel } from "./log.js";
 
-interface GetRouteParams<T extends WebSocket | ServerResponse<IncomingMessage>> {
+interface GetRouteParams<
+  T extends WebSocket | ServerResponse<IncomingMessage>,
+> {
+  addConnection: AddConnection<T>;
+  broadcast: Broadcast<T>;
   groups: Groups;
   send: Send<T>;
-  broadcast: Broadcast<T>;
-  addConnection: AddConnection<T>;
 }
 
 export function getRoutes<
   T extends WebSocket | ServerResponse<IncomingMessage>,
 >(params: GetRouteParams<T>) {
-  const { groups, broadcast, addConnection } = params;
+  const { addConnection, broadcast, groups, send } = params;
   return {
     connect(data: ConnectData, connection: T, uid?: string) {
       if (data.id) {
@@ -37,16 +39,23 @@ export function getRoutes<
         removeOldGroups(groups);
         if (!groups.has(data.id)) {
           initGroup(groups, data.id, data.states);
-        } else if (data.states) {
-          replaceGroup(groups, data.id, data.states);
-          broadcast(data.id, data.states, uid);
+        } else {
+          const group = groups.get(data.id)!;
+          send(connection, group.states);
         }
       }
     },
     patch(data: PatchData, uid?: string) {
       if (data.id && groups.has(data.id)) {
         patchGroup(groups, data.id, data.states);
-        broadcast(data.id, data.states, uid, EventType.PATCH);
+        const group = groups.get(data.id)!;
+        let states = data.states;
+        if (data.full) {
+          states = Object.fromEntries(
+            Object.keys(data.states).map((key) => [key, group.states[key]]),
+          )
+        }
+        broadcast(data.id, states, uid, EventType.PATCH);
       }
     },
     replace(data: ReplaceData, uid?: string) {
