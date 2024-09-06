@@ -1,7 +1,7 @@
 {
   "name": "slidev-sync-server",
   "version": "0.0.0",
-  "description": "WebSocket server for slidev-component-poll",
+  "description": "WebSocket server for slidev",
   "homepage": "https://github.com/Smile-SA/slidev-sync-server",
   "repository": {
     "type": "git",

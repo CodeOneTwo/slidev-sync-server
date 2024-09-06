@@ -1,6 +1,8 @@
 # slidev-sync-server
 
-WebSocket server for [slidev-component-poll](https://github.com/Smile-SA/slidev-component-poll).
+WebSocket server for [Slidev](https://sli.dev/).
+
+You can use this server easily with the [slidev-addon-sync](https://github.com/Smile-SA/slidev-addon-sync) addon.
 
 ## Installation
 
