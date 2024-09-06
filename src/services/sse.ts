@@ -41,12 +41,12 @@ export function getUrl(
 }
 
 export function initServer(port: number) {
-  const { connect, replace, reset } = getRoutes(
+  const { connect, patch, replace, reset } = getRoutes({
     groups,
     send,
     broadcast,
     addConnection,
-  );
+  });
 
   const server = createServer(
     (req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
@@ -85,11 +85,14 @@ export function initServer(port: number) {
             case "/connect":
               connect(data, connection, uid);
               break;
-            case "/reset":
-              reset(data, uid);
+            case "/patch":
+              patch(data, uid);
               break;
             case "/replace":
               replace(data, uid);
+              break;
+            case "/reset":
+              reset(data, uid);
               break;
           }
           res.writeHead(200, headers);

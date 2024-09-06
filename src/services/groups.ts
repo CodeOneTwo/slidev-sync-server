@@ -32,11 +32,23 @@ export function initGroup(groups: Groups, id: string, states: States = {}) {
   groups.set(id, group);
 }
 
-export function updateGroup(groups: Groups, id: string, states: States) {
+export function replaceGroup(groups: Groups, id: string, states: States) {
   const group = groups.get(id) as Group;
   const keys = Object.keys(states);
   for (const key in keys) {
     group.states[key] = states[key];
+  }
+  group.updated = new Date();
+  groups.set(id, group);
+  log(`--- GROUP "${id}" DATA ---`);
+  log(group);
+}
+
+export function patchGroup(groups: Groups, id: string, states: States) {
+  const group = groups.get(id) as Group;
+  const keys = Object.keys(states);
+  for (const key in keys) {
+    group.states[key] = { ...group.states[key], ...states[key] };
   }
   group.updated = new Date();
   groups.set(id, group);

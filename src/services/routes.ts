@@ -1,20 +1,34 @@
-import type { ConnectData, ReplaceData, ResetData } from "../types/data";
-import type { AddConnection, Broadcast, Group, Groups, Send } from "../types/groups";
+import {
+  type ConnectData,
+  type PatchData,
+  type ReplaceData,
+  type ResetData,
+} from "../types/data";
+import type { AddConnection, Broadcast, Groups, Send } from "../types/groups";
 
 import { IncomingMessage, ServerResponse } from "http";
 import { WebSocket } from "ws";
 
-import { initGroup, removeOldGroups, updateGroup } from "./groups.js";
+import { EventType } from '../types/data.js';
+import {
+  initGroup,
+  patchGroup,
+  removeOldGroups,
+  replaceGroup,
+} from "./groups.js";
 import { log, LogLevel } from "./log.js";
+
+interface GetRouteParams<T extends WebSocket | ServerResponse<IncomingMessage>> {
+  groups: Groups;
+  send: Send<T>;
+  broadcast: Broadcast<T>;
+  addConnection: AddConnection<T>;
+}
 
 export function getRoutes<
   T extends WebSocket | ServerResponse<IncomingMessage>,
->(
-  groups: Groups,
-  send: Send<T>,
-  broadcast: Broadcast<T>,
-  addConnection: AddConnection<T>,
-) {
+>(params: GetRouteParams<T>) {
+  const { groups, broadcast, addConnection } = params;
   return {
     connect(data: ConnectData, connection: T, uid?: string) {
       if (data.id) {
@@ -23,21 +37,27 @@ export function getRoutes<
         removeOldGroups(groups);
         if (!groups.has(data.id)) {
           initGroup(groups, data.id, data.states);
-        } /*else {
-          const group = groups.get(data.id) as Group;
-          send(connection, group.states, uid);
-        }*/
+        } else if (data.states) {
+          replaceGroup(groups, data.id, data.states);
+          broadcast(data.id, data.states, uid);
+        }
+      }
+    },
+    patch(data: PatchData, uid?: string) {
+      if (data.id && groups.has(data.id)) {
+        patchGroup(groups, data.id, data.states);
+        broadcast(data.id, data.states, uid, EventType.PATCH);
       }
     },
     replace(data: ReplaceData, uid?: string) {
       if (data.id && groups.has(data.id)) {
-        updateGroup(groups, data.id, data.states);
+        replaceGroup(groups, data.id, data.states);
         broadcast(data.id, data.states, uid);
       }
     },
     reset(data: ResetData, uid?: string) {
       if (data.id && groups.has(data.id)) {
-        updateGroup(groups, data.id, {});
+        replaceGroup(groups, data.id, {});
         broadcast(data.id, {}, uid);
       }
     },
