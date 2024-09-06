@@ -24,6 +24,7 @@ export interface WsData extends Data {
 }
 
 export interface ConnectData extends Data {
+  full?: boolean
   states?: States;
 }
 
